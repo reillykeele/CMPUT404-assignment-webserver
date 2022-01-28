@@ -19,4 +19,4 @@ class HttpHelper:
         return 'Content-Length: ' + str(len)
 
     def get_server_line() -> str:
-        return 'Server: '
+        return 'Server: rkeele'

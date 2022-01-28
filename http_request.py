@@ -30,7 +30,7 @@ class HttpRequest:
         return self.httpMethod + ' ' + self.uri + ' ' + self.httpVersion + '\n' + str(self.headers)
 
     def respond(self, status: HttpStatus, body: bytearray = b'', additionalHeaders = []) -> bool:    
-        headers = [HttpHelper.get_status_line(status), HttpHelper.get_contentlength_line(len(body))]
+        headers = [HttpHelper.get_status_line(status), HttpHelper.get_server_line(), HttpHelper.get_contentlength_line(len(body))]
 
         # include any additional headers that were supplied (ex. Location)
         if len(additionalHeaders) > 0:

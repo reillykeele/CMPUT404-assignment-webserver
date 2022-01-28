@@ -67,7 +67,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             if contentType is None: 
                 contentType = ContentType.Default
 
-            headers = [HttpHelper.get_contenttype_line(contentType, contentEncoding), HttpHelper.get_server_line()]
+            headers = [HttpHelper.get_contenttype_line(contentType, contentEncoding)]
             return httpRequest.respond(HttpStatus.OK, body, additionalHeaders=headers)
         except:
             return httpRequest.respond(HttpStatus.INTERNAL_SERVER_ERROR)
