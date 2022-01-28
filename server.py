@@ -1,7 +1,7 @@
 #  coding: utf-8 
 import socketserver
 from config import Config
-from constants import HttpMethod
+from constants import ContentType, HttpMethod
 from http import HTTPStatus
 from http_helper import HttpHelper
 from http_request import HttpRequest
@@ -62,6 +62,9 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 
         contentType, contentEncoding = mimetypes.guess_type(path)
         body = b'' if contentType is None else self.create_message_body(path)
+
+        if contentType is None: 
+            contentType = ContentType.Default
 
         return httpRequest.respond(HTTPStatus.OK, contentType, contentEncoding, body)
 
