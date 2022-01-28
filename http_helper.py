@@ -7,8 +7,13 @@ class HttpHelper:
     def get_location_line(host: str, uri: str) -> str:
         return "Location: http://" + host + uri + '/'
 
-    def get_contenttype_line(contentType: str) -> str:
-        return 'Content-Type: ' + contentType
+    def get_contenttype_line(contentType: str, encodingType: str = None) -> str:
+        contentTypeLine = 'Content-Type: ' + contentType
+            
+        if encodingType is not None:
+            contentTypeLine += '; charset=' + encodingType
+        
+        return contentTypeLine
 
     def get_contentlength_line(len) -> str:
         return 'Content-Length: ' + str(len)

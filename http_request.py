@@ -14,8 +14,11 @@ class HttpRequest:
         self.request = request
         req = request.recv(Config.BUFFER_SIZE).decode(Encoding.DEFAULT).split('\r\n')
 
-        # parse method, http version
-        self.httpMethod, self.uri, self.httpVersion = req[0].split(' ')
+        # parse method, http version        
+        try:
+            self.httpMethod, self.uri, self.httpVersion = req[0].split(' ')        
+        except:
+            return self.respond(HTTPStatus.BAD_REQUEST)
 
         # parse headers 
         self.headers = {}
@@ -27,20 +30,14 @@ class HttpRequest:
     def __str__(self) -> str:
         return self.httpMethod + ' ' + self.uri + ' ' + self.httpVersion + '\n' + str(self.headers)
 
-    def respond(self, status: HTTPStatus, contentType: str = None, encoding: str = None, body: bytearray = b'', additionalHeaders = []) -> bool:    
+    def respond(self, status: HTTPStatus, body: bytearray = b'', additionalHeaders = []) -> bool:    
         headers = [HttpHelper.get_status_line(status), HttpHelper.get_contentlength_line(len(body))]
 
-        if contentType is not None:
-            contentTypeLine = 'Content-Type: ' + contentType
-            
-            if encoding is not None:
-                contentType += '; ' + encoding
-            
-            headers.append(contentTypeLine) 
-
+        # include any additional headers that were supplied (ex. Location)
         if len(additionalHeaders) > 0:
             headers.extend(additionalHeaders)
 
+        # Create our message, encode it as a byte array, and send it 
         message = '\r\n'.join(headers) + '\r\n\r\n'
 
         print(message)

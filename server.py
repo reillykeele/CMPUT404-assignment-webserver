@@ -1,4 +1,5 @@
 #  coding: utf-8 
+from distutils.command.config import config
 import socketserver
 from config import Config
 from constants import ContentType, HttpMethod
@@ -47,31 +48,35 @@ class MyWebServer(socketserver.BaseRequestHandler):
         if httpRequest.httpMethod != HttpMethod.Get:             
             return httpRequest.respond(HTTPStatus.METHOD_NOT_ALLOWED)
 
-        # Service the request 
-        path = Config.ROOT + httpRequest.uri        
-        if not os.path.relpath(path).startswith(Config.ROOT[2:]) or not os.path.exists(path):
-            return httpRequest.respond(HTTPStatus.NOT_FOUND)
-        elif os.path.isdir(path):
-            if path[-1] != '/':
-                headers = [HttpHelper.get_location_line(httpRequest.headers['Host'], httpRequest.uri)]
-                return httpRequest.respond(HTTPStatus.MOVED_PERMANENTLY, additionalHeaders=headers)
-
-            path += 'index.html'
-            if not os.path.exists(path):
+        # Service the request         
+        try:
+            path = os.path.join(Config.ROOT, httpRequest.uri[1:])                     
+            if os.path.relpath(path)[:len(Config.ROOT[2:])] != Config.ROOT[2:] or not os.path.exists(path):
                 return httpRequest.respond(HTTPStatus.NOT_FOUND)
-                
-        contentType, contentEncoding = mimetypes.guess_type(path)
-        body = b'' if contentType is None else self.create_message_body(path)
+            elif os.path.isdir(path):
+                if path[-1] != '/':
+                    headers = [HttpHelper.get_location_line(httpRequest.headers['Host'], httpRequest.uri)]
+                    return httpRequest.respond(HTTPStatus.MOVED_PERMANENTLY, additionalHeaders=headers)
 
-        if contentType is None: 
-            contentType = ContentType.Default
+                path = os.path.join(path, 'index.html')            
+                if not os.path.exists(path):
+                    return httpRequest.respond(HTTPStatus.NOT_FOUND)
+                    
+            contentType, contentEncoding = mimetypes.guess_type(path)
+            body = b'' if contentType is None else self.create_message_body(path)
 
-        return httpRequest.respond(HTTPStatus.OK, contentType, contentEncoding, body)
+            if contentType is None: 
+                contentType = ContentType.Default
+
+            headers = [HttpHelper.get_contenttype_line(contentType, contentEncoding)]
+            return httpRequest.respond(HTTPStatus.OK, body, additionalHeaders=headers)
+        except:
+            return httpRequest.respond(HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def create_message_body(self, path) -> bytearray:                
-        with open(path, 'r') as file:
+        with open(path, 'rb') as file:
             body = file.read()
-            return bytearray(body.encode())
+            return bytearray(body)
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
