@@ -2,8 +2,7 @@
 from distutils.command.config import config
 import socketserver
 from config import Config
-from constants import ContentType, HttpMethod
-from http import HTTPStatus
+from constants import ContentType, HttpMethod, HttpStatus
 from http_helper import HttpHelper
 from http_request import HttpRequest
 import mimetypes
@@ -43,24 +42,24 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
         # Check if we can service the request
         if httpRequest.httpVersion != 'HTTP/1.1':            
-            return httpRequest.respond(HTTPStatus.HTTP_VERSION_NOT_SUPPORTED)
+            return httpRequest.respond(HttpStatus.HTTP_VERSION_NOT_SUPPORTED)
 
         if httpRequest.httpMethod != HttpMethod.Get:             
-            return httpRequest.respond(HTTPStatus.METHOD_NOT_ALLOWED)
+            return httpRequest.respond(HttpStatus.METHOD_NOT_ALLOWED)
 
         # Service the request         
         try:
             path = os.path.join(Config.ROOT, httpRequest.uri[1:])                     
             if os.path.relpath(path)[:len(Config.ROOT[2:])] != Config.ROOT[2:] or not os.path.exists(path):
-                return httpRequest.respond(HTTPStatus.NOT_FOUND)
+                return httpRequest.respond(HttpStatus.NOT_FOUND)
             elif os.path.isdir(path):
                 if path[-1] != '/':
                     headers = [HttpHelper.get_location_line(httpRequest.headers['Host'], httpRequest.uri)]
-                    return httpRequest.respond(HTTPStatus.MOVED_PERMANENTLY, additionalHeaders=headers)
+                    return httpRequest.respond(HttpStatus.MOVED_PERMANENTLY, additionalHeaders=headers)
 
                 path = os.path.join(path, 'index.html')            
                 if not os.path.exists(path):
-                    return httpRequest.respond(HTTPStatus.NOT_FOUND)
+                    return httpRequest.respond(HttpStatus.NOT_FOUND)
                     
             contentType, contentEncoding = mimetypes.guess_type(path)
             body = b'' if contentType is None else self.create_message_body(path)
@@ -68,10 +67,10 @@ class MyWebServer(socketserver.BaseRequestHandler):
             if contentType is None: 
                 contentType = ContentType.Default
 
-            headers = [HttpHelper.get_contenttype_line(contentType, contentEncoding)]
-            return httpRequest.respond(HTTPStatus.OK, body, additionalHeaders=headers)
+            headers = [HttpHelper.get_contenttype_line(contentType, contentEncoding), HttpHelper.get_server_line()]
+            return httpRequest.respond(HttpStatus.OK, body, additionalHeaders=headers)
         except:
-            return httpRequest.respond(HTTPStatus.INTERNAL_SERVER_ERROR)
+            return httpRequest.respond(HttpStatus.INTERNAL_SERVER_ERROR)
 
     def create_message_body(self, path) -> bytearray:                
         with open(path, 'rb') as file:

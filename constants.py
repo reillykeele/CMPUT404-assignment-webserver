@@ -1,3 +1,31 @@
+from enum import IntEnum
+
+
+class HttpStatus(IntEnum):
+    def __new__(cls, value, phrase):
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+
+        obj.phrase = phrase
+        return obj
+
+    # 200
+    OK = 200, 'OK'
+
+    # 300
+    MOVED_PERMANENTLY = 301, 'Moved Permanently'
+
+    # 400 
+    BAD_REQUEST = 400, 'Bad Request'
+    NOT_FOUND = 404, 'Not Found'
+    METHOD_NOT_ALLOWED = 405, 'Method Not Allowed'
+    
+
+    # 500
+    INTERNAL_SERVER_ERROR = 500, 'Internal Server Error'
+    HTTP_VERSION_NOT_SUPPORTED = 505, 'HTTP Version Not Supported'
+
+
 class HttpMethod:
     Get = 'GET'
     Post = 'POST'

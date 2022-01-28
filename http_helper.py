@@ -1,7 +1,7 @@
-from http import HTTPStatus
+from constants import HttpStatus
 
 class HttpHelper: 
-    def get_status_line(httpStatus: HTTPStatus) -> str:
+    def get_status_line(httpStatus: HttpStatus) -> str:
         return 'HTTP/1.1 ' + str(httpStatus.value) + ' ' + httpStatus.phrase
     
     def get_location_line(host: str, uri: str) -> str:
@@ -17,3 +17,6 @@ class HttpHelper:
 
     def get_contentlength_line(len) -> str:
         return 'Content-Length: ' + str(len)
+
+    def get_server_line() -> str:
+        return 'Server: '

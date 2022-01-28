@@ -1,6 +1,5 @@
 from config import Config
-from constants import Encoding
-from http import HTTPStatus
+from constants import Encoding, HttpStatus
 from http_helper import HttpHelper
 
 class HttpRequest:    
@@ -18,7 +17,7 @@ class HttpRequest:
         try:
             self.httpMethod, self.uri, self.httpVersion = req[0].split(' ')        
         except:
-            return self.respond(HTTPStatus.BAD_REQUEST)
+            return self.respond(HttpStatus.BAD_REQUEST)
 
         # parse headers 
         self.headers = {}
@@ -30,7 +29,7 @@ class HttpRequest:
     def __str__(self) -> str:
         return self.httpMethod + ' ' + self.uri + ' ' + self.httpVersion + '\n' + str(self.headers)
 
-    def respond(self, status: HTTPStatus, body: bytearray = b'', additionalHeaders = []) -> bool:    
+    def respond(self, status: HttpStatus, body: bytearray = b'', additionalHeaders = []) -> bool:    
         headers = [HttpHelper.get_status_line(status), HttpHelper.get_contentlength_line(len(body))]
 
         # include any additional headers that were supplied (ex. Location)
