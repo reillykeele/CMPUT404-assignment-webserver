@@ -1,9 +1,9 @@
 from enum import IntEnum
 
-
 class HttpStatus(IntEnum):
-    def __new__(cls, value, phrase):
-        obj = int.__new__(cls, value)
+    # From https://github.com/python/cpython/blob/3.10/Lib/http/__init__.py
+    def __new__(self, value, phrase):
+        obj = int.__new__(self, value)
         obj._value_ = value
 
         obj.phrase = phrase
